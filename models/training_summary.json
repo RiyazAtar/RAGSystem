@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-01-17T16:48:04.269723",
+  "dataset": {
+    "total_products": 1337,
+    "categories": 9,
+    "brands": 430,
+    "price_range": [
+      39.0,
+      139900.0
+    ],
+    "discount_range": [
+      0.0,
+      94.0
+    ]
+  },
+  "model": {
+    "train_rmse": 2.1177319972380766,
+    "val_rmse": 15.104281794480814,
+    "train_r2": 0.9903950814571721,
+    "val_r2": 0.4846828624455598,
+    "cv_rmse": 17.289782384304754
+  },
+  "rag": {
+    "total_documents": 1337,
+    "embedding_dimension": 384,
+    "total_queries": 3,
+    "active_sessions": 3,
+    "llm_enabled": false
+  }
+}

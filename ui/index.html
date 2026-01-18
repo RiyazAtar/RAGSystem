@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing AI Assistant</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            border-color: var(--primary);
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            background: var(--text-light);
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .result h4 {
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        /* Chat UI */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: var(--primary);
+        }
+
+        .message.assistant .message-avatar {
+            background: #10b981;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+        }
+
+        .message.user .message-content {
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input input {
+            flex: 1;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Confidence badge */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.medium {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Sources */
+        .sources {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+
+        .source-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🚀 Marketing AI Assistant</h1>
+            <p>AI-powered discount prediction and product Q&A</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('chat')">💬 Chat Assistant</div>
+            <div class="tab" onclick="switchTab('predict')">🎯 Discount Predictor</div>
+            <div class="tab" onclick="switchTab('stats')">📊 System Stats</div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div id="chat-panel" class="panel active">
+            <div class="card">
+                <h3>Product Q&A Assistant</h3>
+                <p style="color: var(--text-light); margin-bottom: 16px;">
+                    Ask questions about products, prices, ratings, and more. Your conversation history is preserved.
+                </p>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message assistant">
+                            <div class="message-avatar">AI</div>
+                            <div class="message-content">
+                                Hello! I'm your Marketing AI Assistant. Ask me anything about products - prices, recommendations, ratings, discounts, and more!
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Ask about products..." onkeypress="handleKeyPress(event)">
+                        <button onclick="sendMessage()" id="send-btn">Send</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 16px; display: flex; gap: 12px; align-items: center;">
+                    <button onclick="clearChat()" style="background: #ef4444;">Clear Chat</button>
+                    <button onclick="newSession()" style="background: #f59e0b;">New Session</button>
+                    <span style="color: var(--text-light); padding: 12px;">Session: <strong id="session-id">user_1</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predict Panel -->
+        <div id="predict-panel" class="panel">
+            <div class="card">
+                <h3>🎯 Discount Prediction</h3>
+                <p style="color: var(--text-light); margin-bottom: 16px;">
+                    Enter product details to get an optimal discount recommendation.
+                </p>
+                
+                <form id="predict-form" onsubmit="predictDiscount(event)">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="product_name" required placeholder="e.g., boAt Rockerz 450 Bluetooth Headphones">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="Electronics|Headphones">Electronics | Headphones</option>
+                            <option value="Electronics|Smartphones">Electronics | Smartphones</option>
+                            <option value="Computers&Accessories|Cables">Computers | Cables</option>
+                            <option value="Computers&Accessories|Accessories">Computers | Accessories</option>
+                            <option value="Home&Kitchen|Appliances">Home & Kitchen | Appliances</option>
+                            <option value="Home&Kitchen|Kitchen">Home & Kitchen | Kitchen</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Original Price (₹)</label>
+                            <input type="number" id="actual_price" required min="1" value="2999">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Rating (1-5)</label>
+                            <input type="number" id="rating" step="0.1" min="1" max="5" value="4.2">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Number of Reviews</label>
+                        <input type="number" id="rating_count" min="0" value="5000">
+                    </div>
+                    
+                    <button type="submit" id="predict-btn">Predict Discount</button>
+                </form>
+                
+                <div id="prediction-result" class="result" style="display: none;">
+                    <h4>Prediction Result</h4>
+                    <div id="prediction-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div id="stats-panel" class="panel">
+            <div class="card">
+                <h3>📊 System Statistics</h3>
+                <button onclick="loadStats()" style="margin-bottom: 20px;">Refresh Stats</button>
+                
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-products">-</div>
+                        <div class="stat-label">Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-categories">-</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-brands">-</div>
+                        <div class="stat-label">Brands</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-uptime">-</div>
+                        <div class="stat-label">Uptime (min)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>🏥 System Health</h3>
+                <div id="health-status">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        // Get or create session ID (persists across page refreshes)
+        let sessionId = localStorage.getItem('marketing_ai_session_id');
+        if (!sessionId) {
+            // First time user - generate new session ID
+            sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('marketing_ai_session_id', sessionId);
+            console.log('New session created:', sessionId);
+        } else {
+            console.log('Returning user, session restored:', sessionId);
+        }
+
+        document.getElementById('session-id').textContent = sessionId;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            
+            document.querySelector(`.tab:nth-child(${tab === 'chat' ? 1 : tab === 'predict' ? 2 : 3})`).classList.add('active');
+            document.getElementById(`${tab}-panel`).classList.add('active');
+            
+            if (tab === 'stats') loadStats();
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const messagesDiv = document.getElementById('chat-messages');
+            const sendBtn = document.getElementById('send-btn');
+
+            // Add user message
+            messagesDiv.innerHTML += `
+                <div class="message user">
+                    <div class="message-avatar">You</div>
+                    <div class="message-content">${escapeHtml(message)}</div>
+                </div>
+            `;
+
+            input.value = '';
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="loading"></span>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            try {
+                const response = await fetch(`${API_URL}/answer_question`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        question: message,
+                        session_id: sessionId,
+                        include_sources: true
+                    })
+                });
+
+                const data = await response.json();
+
+                let sourcesHtml = '';
+                if (data.sources && data.sources.length > 0) {
+                    sourcesHtml = `
+                        <div class="sources">
+                            <small><strong>Sources:</strong></small>
+                            ${data.sources.slice(0, 3).map(s => `
+                                <div class="source-item">
+                                    <span>${escapeHtml(s.product_name.substring(0, 40))}...</span>
+                                    <span class="badge ${s.score > 0.7 ? 'high' : s.score > 0.5 ? 'medium' : 'low'}">${(s.score * 100).toFixed(0)}%</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                messagesDiv.innerHTML += `
+                    <div class="message assistant">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content">
+                            ${formatResponse(data.answer)}
+                            <div style="margin-top: 8px;">
+                                <span class="badge ${data.confidence}">${data.confidence} confidence</span>
+                            </div>
+                            ${sourcesHtml}
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error('Chat error:', error);
+                messagesDiv.innerHTML += `
+                    <div class="message assistant">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content" style="background: #fee2e2;">
+                            Sorry, I encountered an error: ${error.message || 'Unknown error'}<br>
+                            Please check the browser console for details.
+                        </div>
+                    </div>
+                `;
+            }
+
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'Send';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function clearChat() {
+            // Clear chat messages but keep same session
+            try {
+                await fetch(`${API_URL}/conversation/${sessionId}`, { method: 'DELETE' });
+            } catch (e) {}
+
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="message assistant">
+                    <div class="message-avatar">AI</div>
+                    <div class="message-content">
+                        Chat cleared! Your session continues. How can I help you today?
+                    </div>
+                </div>
+            `;
+        }
+
+        function newSession() {
+            // Create completely new session and clear localStorage
+            if (confirm('Start a new session? This will clear your conversation history.')) {
+                // Generate new session ID
+                sessionId = 'user_' + Math.random().toString(36).substr(2, 9);
+
+                // Save to localStorage
+                localStorage.setItem('marketing_ai_session_id', sessionId);
+
+                // Update display
+                document.getElementById('session-id').textContent = sessionId;
+
+                // Clear chat UI
+                document.getElementById('chat-messages').innerHTML = `
+                    <div class="message assistant">
+                        <div class="message-avatar">AI</div>
+                        <div class="message-content">
+                            New session started! Session ID: <strong>${sessionId}</strong><br>
+                            How can I help you today?
+                        </div>
+                    </div>
+                `;
+
+                console.log('New session started:', sessionId);
+            }
+        }
+
+        async function predictDiscount(e) {
+            e.preventDefault();
+            
+            const btn = document.getElementById('predict-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Predicting...';
+
+            try {
+                const response = await fetch(`${API_URL}/predict_discount`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_name: document.getElementById('product_name').value,
+                        category: document.getElementById('category').value,
+                        actual_price: parseFloat(document.getElementById('actual_price').value),
+                        rating: parseFloat(document.getElementById('rating').value),
+                        rating_count: parseInt(document.getElementById('rating_count').value),
+                        about_product: '',
+                        review_content: ''
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Prediction failed');
+                }
+
+                const data = await response.json();
+                console.log('Prediction data:', data);
+
+                const resultDiv = document.getElementById('prediction-result');
+                const contentDiv = document.getElementById('prediction-content');
+
+                const originalPrice = parseFloat(document.getElementById('actual_price').value);
+                const discount = data.predicted_discount || 0;
+                const confLower = data.confidence_lower || 0;
+                const confUpper = data.confidence_upper || 0;
+                const discountedPrice = originalPrice * (1 - discount / 100);
+
+                contentDiv.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
+                        <div>
+                            <div style="font-size: 2.5rem; font-weight: bold; color: var(--primary);">
+                                ${discount.toFixed(1)}%
+                            </div>
+                            <div style="color: var(--text-light);">Recommended Discount</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: bold;">
+                                ₹${discountedPrice.toFixed(0)}
+                            </div>
+                            <div style="color: var(--text-light);">Suggested Price</div>
+                            <div style="text-decoration: line-through; color: #999;">₹${originalPrice}</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f9ff; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                        <strong>Category:</strong> ${data.category || 'N/A'}<br>
+                        <strong>Confidence:</strong> ${confLower.toFixed(1)}% - ${confUpper.toFixed(1)}%
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong>💡 Recommendation:</strong><br>
+                        ${data.recommendation}
+                    </div>
+                    
+                    ${data.top_factors.length > 0 ? `
+                        <div>
+                            <strong>📊 Top Influencing Factors:</strong>
+                            <ul style="margin-top: 8px;">
+                                ${data.top_factors.map(factor => `
+                                    <li>${factor.name}: ${(factor.importance * 100).toFixed(1)}%</li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+
+                resultDiv.style.display = 'block';
+
+            } catch (error) {
+                console.error('Prediction error:', error);
+                alert('Error: ' + (error.message || 'Could not get prediction. Make sure the API server is running.'));
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Predict Discount';
+        }
+
+        async function loadStats() {
+            try {
+                const [statsRes, healthRes] = await Promise.all([
+                    fetch(`${API_URL}/stats`),
+                    fetch(`${API_URL}/health`)
+                ]);
+
+                const stats = await statsRes.json();
+                const health = await healthRes.json();
+
+                document.getElementById('stat-products').textContent = stats.products || 0;
+                document.getElementById('stat-categories').textContent = stats.categories || 0;
+                document.getElementById('stat-brands').textContent = stats.brands || 0;
+                document.getElementById('stat-uptime').textContent = ((stats.uptime_seconds || 0) / 60).toFixed(1);
+
+                const healthDiv = document.getElementById('health-status');
+                const statusColor = health.status === 'healthy' ? '#22c55e' : health.status === 'degraded' ? '#f59e0b' : '#ef4444';
+                
+                healthDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                        <div style="width: 16px; height: 16px; border-radius: 50%; background: ${statusColor};"></div>
+                        <strong style="text-transform: uppercase;">${health.status}</strong>
+                    </div>
+                    <div>
+                        <strong>Components:</strong>
+                        <ul>
+                            ${Object.entries(health.components).map(([name, status]) => `
+                                <li>${name}: <span style="color: ${status === 'healthy' ? '#22c55e' : '#ef4444'}">${status}</span></li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+
+            } catch (error) {
+                document.getElementById('health-status').innerHTML = `
+                    <div style="color: #ef4444;">
+                        ❌ Could not connect to API. Make sure the server is running.
+                    </div>
+                `;
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatResponse(text) {
+            if (!text) return '';
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/• /g, '&bull; ');
+        }
+
+        // Load stats on page load
+        loadStats();
+    </script>
+</body>
+</html>

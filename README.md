@@ -31,8 +31,7 @@ scripts/deploy.sh
 7. ⏱️ Waits for health checks
 8. 📋 Shows all service URLs
 
-**Output includes:**
-- Colored status indicators (✓/✗/⚠)
+**Output includes:* 
 - Real-time progress updates
 - Health check verification
 - Service URLs and commands

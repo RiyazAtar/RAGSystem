@@ -183,13 +183,6 @@ This means:
 
 ## 🔧 Requirements
 
-**System Requirements:**
-- Docker Desktop (running)
-- Python 3.11+
-- Bash shell
-- 4GB+ RAM
-- 2GB+ disk space
-
 **Data Requirements:**
 - `data/amazon_sales.csv` must exist
 
